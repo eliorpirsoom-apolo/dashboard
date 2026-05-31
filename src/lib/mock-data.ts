@@ -51,25 +51,37 @@ export const orders: Order[] = [
   { id: "INV-2036", customer: "מעבדות גרין", date: "2026-05-18", amount: "₪6,300", status: "ממתין" },
 ];
 
+// הסטטוסים והחשיבות תואמים ללוח Monday "ניהול תיקי לקוחות".
 export type Task = {
   id: string;
   title: string;
   owner: string;
-  due: string;
-  status: "לביצוע" | "בתהליך" | "הושלם";
+  due: string | null;
+  importance: string | null;
+  status: string;
 };
 
 export const tasks: Task[] = [
-  { id: "T-1", title: "אפיון מסך הזמנות", owner: "דנה לוי", due: "2026-06-03", status: "בתהליך" },
-  { id: "T-2", title: "חיבור Google Analytics", owner: "יוסי כהן", due: "2026-06-05", status: "לביצוע" },
-  { id: "T-3", title: "עיצוב לוגו חדש", owner: "מאיה בר", due: "2026-05-30", status: "הושלם" },
-  { id: "T-4", title: "בדיקות QA לגרסה 2.1", owner: "אבי נחום", due: "2026-06-08", status: "לביצוע" },
-  { id: "T-5", title: "כתיבת תיעוד API", owner: "דנה לוי", due: "2026-06-02", status: "בתהליך" },
-  { id: "T-6", title: "פגישת אפיון עם הלקוח", owner: "יוסי כהן", due: "2026-05-29", status: "הושלם" },
+  { id: "T-1", title: "אפיון מסך הזמנות", owner: "דנה לוי", due: "2026-06-03", importance: "בינוני", status: "בעבודה" },
+  { id: "T-2", title: "חיבור Google Analytics", owner: "יוסי כהן", due: "2026-06-05", importance: "חשוב מאוד", status: "לא התחיל" },
+  { id: "T-3", title: "עיצוב לוגו חדש", owner: "מאיה בר", due: "2026-05-30", importance: "קל", status: "הושלם" },
+  { id: "T-4", title: "בדיקות QA לגרסה 2.1", owner: "אבי נחום", due: "2026-06-08", importance: "בינוני", status: "מחכה לאישור" },
+  { id: "T-5", title: "כתיבת תיעוד API", owner: "דנה לוי", due: "2026-06-02", importance: null, status: "בעבודה" },
+  { id: "T-6", title: "פגישת אפיון עם הלקוח", owner: "יוסי כהן", due: "2026-05-29", importance: "קל", status: "בהמתנה" },
 ];
 
-export const taskColumns: { status: Task["status"]; color: string }[] = [
-  { status: "לביצוע", color: "var(--muted)" },
-  { status: "בתהליך", color: "var(--warning)" },
-  { status: "הושלם", color: "var(--success)" },
+// סדר וצבעים תואמים לתוויות הסטטוס ב-Monday
+export const taskColumns: { status: string; color: string }[] = [
+  { status: "לא התחיל", color: "#e2445c" },
+  { status: "בעבודה", color: "#a25ddc" },
+  { status: "מחכה לאישור", color: "#579bfc" },
+  { status: "בהמתנה", color: "#fdab3d" },
+  { status: "הושלם", color: "#00c875" },
 ];
+
+// צבעי תווית החשיבות (status4) ב-Monday
+export const importanceColors: Record<string, string> = {
+  קל: "#00c875",
+  בינוני: "#fdab3d",
+  "חשוב מאוד": "#e2445c",
+};
