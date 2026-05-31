@@ -15,6 +15,21 @@ const COLUMN_IDS = {
   due: "date", // דד ליין
 } as const;
 
+// לוח הלידים "כניסת לקוחות חדשים" (ברירת מחדל). ניתן לעקוף ב-MONDAY_LEADS_BOARD_ID.
+const LEADS_BOARD_ID = "6623135619";
+const LEAD_STATUS_COLUMN = "status";
+// סטטוסים שנחשבים "סגירה" (לפי בחירת הלקוח)
+const CLOSURE_STATUSES = ["נכנס לעבודה", "הצעה חזרה חתומה"];
+// סדר ה-funnel להצגה
+const LEAD_FUNNEL_ORDER = [
+  "הצעת מחיר בהכנה",
+  "הצעת מחיר נשלחה",
+  "נשלח ללקוח תוכנית",
+  "הצעה חזרה חתומה",
+  "נכנס לעבודה",
+  "העבודה בוטלה",
+];
+
 export type MondayColumnValue = {
   id: string;
   text: string | null;
@@ -25,6 +40,7 @@ export type MondayColumnValue = {
 export type MondayItem = {
   id: string;
   name: string;
+  created_at?: string;
   column_values: MondayColumnValue[];
 };
 
@@ -41,6 +57,11 @@ type MondayItemsResponse = {
 
 export function isMondayConfigured(): boolean {
   return !!(process.env.MONDAY_API_TOKEN && process.env.MONDAY_BOARD_ID);
+}
+
+// לוח הלידים דורש רק טוקן (מזהה הלוח עם ברירת מחדל)
+export function isLeadsConfigured(): boolean {
+  return !!process.env.MONDAY_API_TOKEN;
 }
 
 async function mondayQuery<T>(query: string, variables: Record<string, unknown>): Promise<T> {
@@ -62,8 +83,11 @@ async function mondayQuery<T>(query: string, variables: Record<string, unknown>)
   return (await res.json()) as T;
 }
 
-/** מושך את ה-items מהלוח המוגדר ב-MONDAY_BOARD_ID. */
-export async function fetchBoardItems(limit = 100): Promise<MondayItem[]> {
+/** מושך items מלוח נתון (ברירת מחדל: MONDAY_BOARD_ID). */
+export async function fetchBoardItems(
+  boardId = process.env.MONDAY_BOARD_ID,
+  limit = 100,
+): Promise<MondayItem[]> {
   const query = `
     query ($boardId: [ID!], $limit: Int!) {
       boards(ids: $boardId) {
@@ -71,6 +95,7 @@ export async function fetchBoardItems(limit = 100): Promise<MondayItem[]> {
           items {
             id
             name
+            created_at
             column_values {
               id
               text
@@ -84,7 +109,7 @@ export async function fetchBoardItems(limit = 100): Promise<MondayItem[]> {
   `;
 
   const data = await mondayQuery<MondayItemsResponse>(query, {
-    boardId: [process.env.MONDAY_BOARD_ID],
+    boardId: [boardId],
     limit,
   });
 
@@ -117,7 +142,63 @@ export function mapItemToTask(item: MondayItem): Task {
  * מסנן items ללא סטטוס (שורות ריקות בלוח) ומחזיר את העדכניות ביותר.
  */
 export async function fetchTasks(limit = 60): Promise<Task[]> {
-  const items = await fetchBoardItems(200);
+  const items = await fetchBoardItems(process.env.MONDAY_BOARD_ID, 200);
   const withStatus = items.filter((it) => columnText(it, COLUMN_IDS.status));
   return withStatus.slice(0, limit).map(mapItemToTask);
+}
+
+// ===== לידים (לוח "כניסת לקוחות חדשים") =====
+
+export type LeadStats = {
+  leadsToday: number;
+  leadsThisMonth: number;
+  closuresThisMonth: number;
+  funnel: { status: string; count: number }[];
+};
+
+// מחזיר YYYY-MM-DD לפי אזור הזמן של ישראל
+function ymd(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+/**
+ * מחשב סטטיסטיקת לידים מלוח הלידים.
+ * הספירה לפי created_at (תאריך היצירה ב-Monday), מאחר שעמודת התאריך אינה מאוכלסת.
+ */
+export async function fetchLeadStats(): Promise<LeadStats> {
+  const boardId = process.env.MONDAY_LEADS_BOARD_ID || LEADS_BOARD_ID;
+  const items = await fetchBoardItems(boardId, 500);
+
+  const todayStr = ymd(new Date());
+  const monthStr = todayStr.slice(0, 7); // YYYY-MM
+
+  let leadsToday = 0;
+  let leadsThisMonth = 0;
+  let closuresThisMonth = 0;
+  const funnelCounts: Record<string, number> = {};
+
+  for (const item of items) {
+    const status = columnText(item, LEAD_STATUS_COLUMN);
+    if (status) funnelCounts[status] = (funnelCounts[status] ?? 0) + 1;
+
+    if (!item.created_at) continue;
+    const created = ymd(new Date(item.created_at));
+    if (created === todayStr) leadsToday++;
+    if (created.startsWith(monthStr)) {
+      leadsThisMonth++;
+      if (status && CLOSURE_STATUSES.includes(status)) closuresThisMonth++;
+    }
+  }
+
+  const funnel = LEAD_FUNNEL_ORDER.filter((s) => funnelCounts[s]).map((status) => ({
+    status,
+    count: funnelCounts[status],
+  }));
+
+  return { leadsToday, leadsThisMonth, closuresThisMonth, funnel };
 }

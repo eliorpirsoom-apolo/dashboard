@@ -18,8 +18,11 @@ Next.js רץ על Vercel **ללא קובץ קונפיגורציה** — Vercel �
 | משתנה | חובה? | ערך / הערה |
 |-------|-------|------------|
 | `AUTH_SECRET` | ✅ חובה | `KZjOxjSXHb3si+BxHXoMSt2BU3jRVQaX8RrIzNdf9B1V` (או צור חדש: `npx auth secret`) |
-| `MONDAY_API_TOKEN` | אופציונלי | טוקן מ-Monday → Developers → My Access Tokens. בלי זה — נתוני דמו במשימות |
-| `MONDAY_BOARD_ID` | אופציונלי | `2072697123` (לוח "ניהול תיקי לקוחות") |
+| `MONDAY_API_TOKEN` | אופציונלי | טוקן מ-Monday → Developers → My Access Tokens. בלי זה — נתוני דמו במשימות ובלידים |
+| `MONDAY_BOARD_ID` | אופציונלי | `2072697123` (לוח המשימות "ניהול תיקי לקוחות") |
+| `MONDAY_LEADS_BOARD_ID` | אופציונלי | `6623135619` (לוח הלידים "כניסת לקוחות חדשים") |
+| `WINDSOR_API_KEY` | אופציונלי | מפתח מ-Windsor.ai → Account → API. בלי זה — תקציב מדיה דמו |
+| `WINDSOR_CONNECTORS` | אופציונלי | `facebook` (להוספת גוגל בעתיד: `facebook,google_ads`) |
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | אופציונלי | להפעלת כניסת Google |
 | `AUTH_MICROSOFT_ENTRA_ID_ID` / `_SECRET` / `_ISSUER` | אופציונלי | להפעלת כניסת Microsoft |
 

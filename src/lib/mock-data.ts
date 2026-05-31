@@ -1,39 +1,6 @@
 // נתוני דמו לדשבורד. בשלב הבא יוחלפו בנתונים אמיתיים
 // ממקורות כמו Monday.com, Windsor.ai (אנליטיקס) ובסיס נתונים.
 
-export type Kpi = {
-  key: string;
-  label: string;
-  value: string;
-  change: number; // אחוז שינוי מול התקופה הקודמת
-};
-
-export const kpis: Kpi[] = [
-  { key: "revenue", label: "הכנסות החודש", value: "₪284,500", change: 12.4 },
-  { key: "orders", label: "הזמנות פעילות", value: "1,284", change: 8.1 },
-  { key: "users", label: "משתמשים פעילים", value: "9,432", change: -2.3 },
-  { key: "conversion", label: "אחוז המרה", value: "3.8%", change: 0.6 },
-];
-
-export type RevenuePoint = { month: string; revenue: number; target: number };
-
-export const revenueByMonth: RevenuePoint[] = [
-  { month: "ינו", revenue: 182000, target: 170000 },
-  { month: "פבר", revenue: 198000, target: 185000 },
-  { month: "מרץ", revenue: 215000, target: 200000 },
-  { month: "אפר", revenue: 234000, target: 220000 },
-  { month: "מאי", revenue: 284500, target: 250000 },
-];
-
-export type TrafficSource = { name: string; value: number };
-
-export const trafficSources: TrafficSource[] = [
-  { name: "חיפוש אורגני", value: 4200 },
-  { name: "מודעות ממומנות", value: 2800 },
-  { name: "רשתות חברתיות", value: 1500 },
-  { name: "ישיר", value: 932 },
-];
-
 export type Order = {
   id: string;
   customer: string;
@@ -84,4 +51,34 @@ export const importanceColors: Record<string, string> = {
   קל: "#00c875",
   בינוני: "#fdab3d",
   "חשוב מאוד": "#e2445c",
+};
+
+// ===== נתוני דמו לעמוד הסקירה (לידים + תקציב מדיה) =====
+
+export const demoLeadStats = {
+  leadsToday: 4,
+  leadsThisMonth: 37,
+  closuresThisMonth: 11,
+  funnel: [
+    { status: "הצעת מחיר נשלחה", count: 18 },
+    { status: "נשלח ללקוח תוכנית", count: 6 },
+    { status: "הצעה חזרה חתומה", count: 9 },
+    { status: "נכנס לעבודה", count: 12 },
+    { status: "העבודה בוטלה", count: 3 },
+  ],
+};
+
+export const demoMediaSpend = {
+  monthTotal: 1984,
+  today: 84,
+  bySource: [{ source: "פייסבוק (Meta)", spend: 1984 }],
+  daily: [
+    { date: "2026-05-01", spend: 30 },
+    { date: "2026-05-05", spend: 36 },
+    { date: "2026-05-10", spend: 51 },
+    { date: "2026-05-15", spend: 53 },
+    { date: "2026-05-20", spend: 94 },
+    { date: "2026-05-25", spend: 104 },
+    { date: "2026-05-31", spend: 84 },
+  ],
 };
