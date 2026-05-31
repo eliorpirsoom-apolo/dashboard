@@ -58,6 +58,9 @@ if (process.env.NODE_ENV !== "production" || providers.length === 0) {
 
 export const authConfig: NextAuthConfig = {
   providers,
+  // נדרש בפריסה עצמית (production) כדי לתת אמון ב-host של הבקשה.
+  // בפיתוח זה אוטומטי; בלעדיו מתקבל UntrustedHost ב-build production.
+  trustHost: true,
   pages: {
     signIn: "/login",
   },
